@@ -79,6 +79,7 @@ public class RenderingEngine{
 	
 	private static Shader forwardAmbientShader;
 	private static Shader forwardParticleAmbientShader;
+	private static Shader ambientShader;
 	private static Shader bloomCombineShader;
 	private static Shader bloomSwitchShader;
 	private static Shader forwardParticleShader;
@@ -187,14 +188,24 @@ public class RenderingEngine{
 		camera2D = new Camera(0, Window.getWidth(), 0, Window.getHeight(), -1, 1);
 		new Entity().addComponent(camera2D);
 		
-		setTexture("displayTexture", new Texture(Window.getWidth(), Window.getHeight(), new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null}, GL11.GL_TEXTURE_2D, new int[]{GL11.GL_NEAREST, GL11.GL_NEAREST}, new int[]{GL11.GL_RGBA, GL11.GL_RGBA}, new int[]{GL11.GL_RGBA, GL11.GL_RGBA}, new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE}, true, new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1}));
+		final ByteBuffer[] data = new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null};
+		final int[] filter = new int[]{GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR};
+		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGB16F, GL30.GL_RGB16F, GL11.GL_RGBA};
+		final int[] format = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA};
+		final int[] type = new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE, GL11.GL_FLOAT, GL11.GL_FLOAT, GL11.GL_UNSIGNED_BYTE};
+		final int[] attachment = new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3, GL30.GL_COLOR_ATTACHMENT4};
+		
+		setTexture("renderTexture", new Texture(Window.getWidth(), Window.getHeight(), data, GL11.GL_TEXTURE_2D, filter, internalFormat, format, type, true, attachment));
+		
+		setTexture("displayTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		setTexture("postFilterTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_NEAREST, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		
 		setTexture("bloomTexture1", new Texture(Window.getWidth()/2, Window.getHeight()/2, (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		setTexture("bloomTexture2", new Texture(Window.getWidth()/2, Window.getHeight()/2, (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		
-		forwardAmbientShader = new Shader("forwardAmbient");
+		forwardAmbientShader = new Shader("geometryPass");
 		forwardParticleAmbientShader = new Shader("forwardParticleAmbient");
+		ambientShader = new Shader("ambient");
 		bloomCombineShader = new Shader("bloomCombine");
 		bloomSwitchShader = new Shader("bloomSwitch");
 		forwardParticleShader = new Shader("forwardParticleForward");
@@ -282,7 +293,7 @@ public class RenderingEngine{
 		
 		mainCamera.updateFrustum();
 		
-		getTexture("displayTexture").bindAsRenderTarget();
+		getTexture("renderTexture").bindAsRenderTarget();
 		
 		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -291,7 +302,7 @@ public class RenderingEngine{
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
 		}
 		
-		renderSkybox();
+//		renderSkybox();
 		
 		renderingState = DIFFUSE_STATE;
 		
@@ -303,117 +314,119 @@ public class RenderingEngine{
 		
 		object.renderAll(forwardAmbientShader, mainCamera);
 		
-		if(NeonEngine.areParticlesEnabled()){
-			batchRenderer.render(particleShader, mainCamera);
-		}
-		
-		for(int i = 0; i < lights.size(); i++){
-			activeLight = lights.get(i);
-			
-			if(NeonEngine.areShadowsEnabled()){
-				final ShadowInfo shadowInfo = activeLight.getShadowInfo();
-				
-				int shadowMapIndex = 0;
-				
-				if(shadowInfo.getShadowMapSizeAsPowerOf2() != 0){
-					shadowMapIndex = shadowInfo.getShadowMapSizeAsPowerOf2() - 1;
-				}
-				
-				setTexture("shadowMap", shadowMaps[shadowMapIndex]);
-				
-				if(shadowInfo.getShadowMapSizeAsPowerOf2() == 0){
-					lightMatrix = new Matrix4f().initScale(0, 0, 0);
-					setFloat("shadowVarianceMin", 0.00002f);
-					setFloat("shadowLightBleedingReduction", 0.0f);
-				}else{
-					shadowMaps[shadowMapIndex].bindAsRenderTarget();
-					
-					GL11.glClearColor(1.0f, 1.0f, 0.0f, 0.0f);
-					GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
-					
-					lightCamera.changeMode(shadowInfo.getBase());
-					
-					final ShadowCameraTransform shadowCameraTransform = activeLight.calcShadowCameraTransform(mainCamera.getTransform().getTransformedPos(), mainCamera.getTransform().getTransformedRot());
-					lightCamera.getTransform().setPos(shadowCameraTransform.pos);
-					lightCamera.getTransform().setRot(shadowCameraTransform.rot);
-					
-					lightMatrix = BIAS_MATRIX.mul(lightCamera.getViewProjection());
-					
-					lightCamera.updateFrustum();
-					
-					setFloat("shadowVarianceMin", shadowInfo.getMinVariance());
-					setFloat("shadowLightBleedingReduction", shadowInfo.getLightBleedReductionAmount());
-					
-					if(shadowInfo.shouldFlipFaces()){
-						GL11.glCullFace(GL11.GL_FRONT);
-					}
-					
-					GL11.glEnable(GL32.GL_DEPTH_CLAMP);
-					
-					renderingState = SHADOW_STATE;
-					
-					if(NeonEngine.areParticlesEnabled()){
-						particleCamera = lightCamera;
-						particleShader = particleShadowMappingShader;
-						particleFlipFaces = shadowInfo.shouldFlipFaces();
-					}
-					
-					object.renderAll(shadowMappingShader, lightCamera);
-					
-					if(NeonEngine.areParticlesEnabled()){
-						batchRenderer.render(particleShader, lightCamera);
-					}
-					
-					GL11.glDisable(GL32.GL_DEPTH_CLAMP);
-					
-					if(shadowInfo.shouldFlipFaces()){
-						GL11.glCullFace(GL11.GL_BACK);
-					}
-					
-					final float shadowSoftness = shadowInfo.getShadowSoftness();
-					if(shadowSoftness != 0){
-						blurShadowMap(shadowMapIndex, shadowSoftness);
-					}
-				}
-				
-				getTexture("displayTexture").bindAsRenderTarget();
-			}else{
-				setTexture("shadowMap", shadowMaps[0]);
-				lightMatrix = new Matrix4f().initScale(0, 0, 0);
-				setFloat("shadowVarianceMin", 0.00002f);
-				setFloat("shadowLightBleedingReduction", 0.0f);
-			}
-			
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-			GL11.glDepthMask(false);
-			GL11.glDepthFunc(GL11.GL_EQUAL);
-			
-			renderingState = LIGHTING_STATE;
-			
-			if(NeonEngine.areParticlesEnabled()){
-				particleCamera = mainCamera;
-				particleShader = forwardParticleShader;
-				particleFlipFaces = false;
-			}
-			
-			object.renderAll(activeLight.getShader(), mainCamera);
-			
-			if(NeonEngine.areParticlesEnabled()){
-				batchRenderer.render(particleShader, mainCamera);
-			}
-			
-			GL11.glDepthMask(true);
-			GL11.glDepthFunc(GL11.GL_LESS);
-			GL11.glDisable(GL11.GL_BLEND);
-		}
-		
 		if(wireframeMode){
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 		}
 		
+		applyFilter(ambientShader, getTexture("renderTexture"), getTexture("displayTexture"));
+		
+//		if(NeonEngine.areParticlesEnabled()){
+//			batchRenderer.render(particleShader, mainCamera);
+//		}
+		
+//		for(int i = 0; i < lights.size(); i++){
+//			activeLight = lights.get(i);
+//			
+//			if(NeonEngine.areShadowsEnabled()){
+//				final ShadowInfo shadowInfo = activeLight.getShadowInfo();
+//				
+//				int shadowMapIndex = 0;
+//				
+//				if(shadowInfo.getShadowMapSizeAsPowerOf2() != 0){
+//					shadowMapIndex = shadowInfo.getShadowMapSizeAsPowerOf2() - 1;
+//				}
+//				
+//				setTexture("shadowMap", shadowMaps[shadowMapIndex]);
+//				
+//				if(shadowInfo.getShadowMapSizeAsPowerOf2() == 0){
+//					lightMatrix = new Matrix4f().initScale(0, 0, 0);
+//					setFloat("shadowVarianceMin", 0.00002f);
+//					setFloat("shadowLightBleedingReduction", 0.0f);
+//				}else{
+//					shadowMaps[shadowMapIndex].bindAsRenderTarget();
+//					
+//					GL11.glClearColor(1.0f, 1.0f, 0.0f, 0.0f);
+//					GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
+//					
+//					lightCamera.changeMode(shadowInfo.getBase());
+//					
+//					final ShadowCameraTransform shadowCameraTransform = activeLight.calcShadowCameraTransform(mainCamera.getTransform().getTransformedPos(), mainCamera.getTransform().getTransformedRot());
+//					lightCamera.getTransform().setPos(shadowCameraTransform.pos);
+//					lightCamera.getTransform().setRot(shadowCameraTransform.rot);
+//					
+//					lightMatrix = BIAS_MATRIX.mul(lightCamera.getViewProjection());
+//					
+//					lightCamera.updateFrustum();
+//					
+//					setFloat("shadowVarianceMin", shadowInfo.getMinVariance());
+//					setFloat("shadowLightBleedingReduction", shadowInfo.getLightBleedReductionAmount());
+//					
+//					if(shadowInfo.shouldFlipFaces()){
+//						GL11.glCullFace(GL11.GL_FRONT);
+//					}
+//					
+//					GL11.glEnable(GL32.GL_DEPTH_CLAMP);
+//					
+//					renderingState = SHADOW_STATE;
+//					
+//					if(NeonEngine.areParticlesEnabled()){
+//						particleCamera = lightCamera;
+//						particleShader = particleShadowMappingShader;
+//						particleFlipFaces = shadowInfo.shouldFlipFaces();
+//					}
+//					
+//					object.renderAll(shadowMappingShader, lightCamera);
+//					
+//					if(NeonEngine.areParticlesEnabled()){
+//						batchRenderer.render(particleShader, lightCamera);
+//					}
+//					
+//					GL11.glDisable(GL32.GL_DEPTH_CLAMP);
+//					
+//					if(shadowInfo.shouldFlipFaces()){
+//						GL11.glCullFace(GL11.GL_BACK);
+//					}
+//					
+//					final float shadowSoftness = shadowInfo.getShadowSoftness();
+//					if(shadowSoftness != 0){
+//						blurShadowMap(shadowMapIndex, shadowSoftness);
+//					}
+//				}
+//				
+//				getTexture("displayTexture").bindAsRenderTarget();
+//			}else{
+//				setTexture("shadowMap", shadowMaps[0]);
+//				lightMatrix = new Matrix4f().initScale(0, 0, 0);
+//				setFloat("shadowVarianceMin", 0.00002f);
+//				setFloat("shadowLightBleedingReduction", 0.0f);
+//			}
+//			
+//			GL11.glEnable(GL11.GL_BLEND);
+//			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+//			GL11.glDepthMask(false);
+//			GL11.glDepthFunc(GL11.GL_EQUAL);
+//			
+//			renderingState = LIGHTING_STATE;
+//			
+//			if(NeonEngine.areParticlesEnabled()){
+//				particleCamera = mainCamera;
+//				particleShader = forwardParticleShader;
+//				particleFlipFaces = false;
+//			}
+//			
+//			object.renderAll(activeLight.getShader(), mainCamera);
+//			
+//			if(NeonEngine.areParticlesEnabled()){
+//				batchRenderer.render(particleShader, mainCamera);
+//			}
+//			
+//			GL11.glDepthMask(true);
+//			GL11.glDepthFunc(GL11.GL_LESS);
+//			GL11.glDisable(GL11.GL_BLEND);
+//		}
+		
 		if(NeonEngine.isBloomEnabled()){
-			applyFilter(bloomSwitchShader, getTexture("displayTexture"), getTexture("bloomTexture1"));
+			applyFilter(bloomSwitchShader, getTexture("renderTexture"), getTexture("bloomTexture1"));
 			
 			blurBloomMap(4f);
 			blurBloomMap(1f);
@@ -693,7 +706,16 @@ public class RenderingEngine{
 		mainCamera.update();
 		camera2D.update();
 		
-		setTexture("displayTexture", new Texture(Window.getWidth(), Window.getHeight(), new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null}, GL11.GL_TEXTURE_2D, new int[]{GL11.GL_NEAREST, GL11.GL_NEAREST}, new int[]{GL11.GL_RGBA, GL11.GL_RGBA}, new int[]{GL11.GL_RGBA, GL11.GL_RGBA}, new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE}, true, new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1}));
+		final ByteBuffer[] data = new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null};
+		final int[] filter = new int[]{GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR};
+		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGB16F, GL30.GL_RGB16F, GL11.GL_RGBA};
+		final int[] format = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA};
+		final int[] type = new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE, GL11.GL_FLOAT, GL11.GL_FLOAT, GL11.GL_UNSIGNED_BYTE};
+		final int[] attachment = new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3, GL30.GL_COLOR_ATTACHMENT4};
+		
+		setTexture("renderTexture", new Texture(Window.getWidth(), Window.getHeight(), data, GL11.GL_TEXTURE_2D, filter, internalFormat, format, type, true, attachment));
+		
+		setTexture("displayTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		setTexture("postFilterTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_NEAREST, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		
 		setTexture("bloomTexture1", new Texture(Window.getWidth()/2, Window.getHeight()/2, (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
