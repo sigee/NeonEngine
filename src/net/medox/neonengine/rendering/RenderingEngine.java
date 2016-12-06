@@ -204,7 +204,7 @@ public class RenderingEngine{
 		setTexture("bloomTexture2", new Texture(Window.getWidth()/2, Window.getHeight()/2, (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		
 		forwardAmbientShader = new Shader("geometryPass");
-		forwardParticleAmbientShader = new Shader("forwardParticleAmbient");
+		forwardParticleAmbientShader = new Shader("geometryPassParticle");
 		ambientShader = new Shader("ambient");
 		bloomCombineShader = new Shader("bloomCombine");
 		bloomSwitchShader = new Shader("bloomSwitch");
@@ -314,15 +314,15 @@ public class RenderingEngine{
 		
 		object.renderAll(forwardAmbientShader, mainCamera);
 		
+		if(NeonEngine.areParticlesEnabled()){
+			batchRenderer.render(particleShader, mainCamera);
+		}
+		
 		if(wireframeMode){
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 		}
 		
 		applyFilter(ambientShader, getTexture("renderTexture"), getTexture("displayTexture"));
-		
-//		if(NeonEngine.areParticlesEnabled()){
-//			batchRenderer.render(particleShader, mainCamera);
-//		}
 		
 //		for(int i = 0; i < lights.size(); i++){
 //			activeLight = lights.get(i);
