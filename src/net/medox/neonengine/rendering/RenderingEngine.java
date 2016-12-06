@@ -215,7 +215,7 @@ public class RenderingEngine{
 		gausBlurFilter = new Shader("filterGausBlur");
 		fxaaFilter = new Shader("filterFxaa");
 		shader2D = new Shader("shader2D");
-		skyboxShader = new Shader("skyboxShader");
+		skyboxShader = new Shader("geometryPassSkybox");
 		
 		filters = new ArrayList<Shader>();
 		
@@ -302,7 +302,7 @@ public class RenderingEngine{
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
 		}
 		
-//		renderSkybox();
+		renderSkybox();
 		
 		renderingState = DIFFUSE_STATE;
 		
