@@ -35,7 +35,7 @@ void main(){
 		
 		out2 = vec4(normalize(tbnMatrix * (255.0/128.0 * texture(normalMap, texCoord0).xyz - 1.0)), 1.0);
 		out3 = vec4(worldPos0, 1.0);
-		out4 = vec4(specularIntensity * texture(specMap, texCoord0).x, specularPower * texture(specMap, texCoord0).x, 0.0, 1.0);
+		out4 = vec4(specularIntensity * texture(specMap, texCoord0).x, specularPower * texture(specMap, texCoord0).x, emissive.r, 1.0);
 	}else{
 		discard;
 	}
