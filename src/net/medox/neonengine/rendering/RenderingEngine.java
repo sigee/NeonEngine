@@ -189,15 +189,15 @@ public class RenderingEngine{
 		new Entity().addComponent(camera2D);
 		
 		final ByteBuffer[] data = new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null};
-		final int[] filter = new int[]{GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR};
-		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGB16F, GL30.GL_RGB16F, GL11.GL_RGBA};
+		final int[] filter = new int[]{GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST};
+		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGB32F, GL30.GL_RGB32F, GL11.GL_RGBA};
 		final int[] format = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA};
 		final int[] type = new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE, GL11.GL_FLOAT, GL11.GL_FLOAT, GL11.GL_UNSIGNED_BYTE};
 		final int[] attachment = new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3, GL30.GL_COLOR_ATTACHMENT4};
 		
 		setTexture("renderTexture", new Texture(Window.getWidth(), Window.getHeight(), data, GL11.GL_TEXTURE_2D, filter, internalFormat, format, type, true, attachment));
 		
-		setTexture("displayTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
+		setTexture("displayTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_NEAREST, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		setTexture("postFilterTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_NEAREST, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		
 		setTexture("bloomTexture1", new Texture(Window.getWidth()/2, Window.getHeight()/2, (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
@@ -695,15 +695,15 @@ public class RenderingEngine{
 		camera2D.update();
 		
 		final ByteBuffer[] data = new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null};
-		final int[] filter = new int[]{GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR, GL11.GL_LINEAR};
-		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGB16F, GL30.GL_RGB16F, GL11.GL_RGBA};
+		final int[] filter = new int[]{GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST};
+		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGB32F, GL30.GL_RGB32F, GL11.GL_RGBA};
 		final int[] format = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA};
 		final int[] type = new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE, GL11.GL_FLOAT, GL11.GL_FLOAT, GL11.GL_UNSIGNED_BYTE};
 		final int[] attachment = new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3, GL30.GL_COLOR_ATTACHMENT4};
 		
 		setTexture("renderTexture", new Texture(Window.getWidth(), Window.getHeight(), data, GL11.GL_TEXTURE_2D, filter, internalFormat, format, type, true, attachment));
 		
-		setTexture("displayTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
+		setTexture("displayTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_NEAREST, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		setTexture("postFilterTexture", new Texture(Window.getWidth(), Window.getHeight(), (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_NEAREST, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		
 		setTexture("bloomTexture1", new Texture(Window.getWidth()/2, Window.getHeight()/2, (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
