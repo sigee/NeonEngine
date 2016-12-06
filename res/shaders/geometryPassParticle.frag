@@ -24,7 +24,7 @@ void main(){
 		out1 = vec4(0.0, 0.0, 0.0, 0.0);
 		out2 = vec4(0.0, 0.0, 0.0, 0.0);
 		out3 = vec4(0.0, 0.0, 0.0, 0.0);
-		out4 = vec4(0.0, 0.0, 0.0, 0.0);
+		out4 = vec4(0.0, 0.0, color0.z, 0.0);
 	}else{
 		discard;
 	}
