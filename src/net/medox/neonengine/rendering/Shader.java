@@ -140,11 +140,11 @@ public class Shader{
 					}else{
 						throw new IllegalArgumentException(uniformName + " is not a valid component of Camera");
 					}
-				}/*else{
+				}else{
 					if(uniformName.equals("C0_eyePos")){
 						setUniformVector3f(uniformName, RenderingEngine.getMainCamera().getTransform().getTransformedPos());
 					}
-				}*/
+				}
 			}else if(uniformType.equals("sampler2D")){
 				final int samplerSlot = RenderingEngine.getSamplerSlot(uniformName);
 				material.getTexture(uniformName).bind(samplerSlot);

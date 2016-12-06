@@ -1,0 +1,59 @@
+struct BaseLight{
+	vec3 color;
+	float intensity;
+};
+
+struct Attenuation{
+	float constant;
+	float linear;
+	float exponent;
+};
+
+struct DirectionalLight{
+	BaseLight base;
+	vec3 direction;
+};
+
+struct PointLight{
+	BaseLight base;
+	Attenuation atten;
+	vec3 position;
+	float range;
+};
+
+struct SpotLight{
+	PointLight pointLight;
+	vec3 direction;
+	float cutoff;
+};
+
+vec4 CalcLight(BaseLight base, vec3 direction, vec3 normal, vec3 worldPos, vec2 specular, vec3 eyePos){
+	float diffuseFactor = clamp(dot(normal, -direction), 0.0, 1.0);
+	
+	vec4 diffuseColor = vec4(0.0, 0.0, 0.0, 0.0);
+	vec4 specularColor = vec4(0.0, 0.0, 0.0, 0.0);
+	
+	diffuseColor = vec4(base.color, 1.0) * base.intensity * diffuseFactor;
+	
+	float specularFactor = dot(normalize(eyePos - worldPos), normalize(reflect(direction, normal)));
+	specularFactor = clamp(pow(specularFactor, specular.y), 0.0, 1.0);
+	
+	if(specularFactor > 0.0){
+		specularColor = vec4(base.color, 1.0) * specular.x * specularFactor;
+	}
+	
+	return diffuseColor + specularColor;
+}
+
+vec4 CalcPointLight(PointLight pointLight, vec3 normal, vec3 worldPos, vec2 specular, vec3 eyePos){
+	vec3 lightDirection = worldPos - pointLight.position;
+	float distanceToPoint = length(lightDirection);
+	
+	if(distanceToPoint > pointLight.range){
+		return vec4(0.0, 0.0, 0.0, 0.0);
+	}
+	
+	lightDirection = normalize(lightDirection);
+	
+	return CalcLight(pointLight.base, lightDirection, normal, worldPos, specular, eyePos) / (pointLight.atten.constant + pointLight.atten.linear * distanceToPoint + pointLight.atten.exponent * distanceToPoint * distanceToPoint + 0.0001);
+}
