@@ -77,19 +77,18 @@ public class RenderingEngine{
 	
 	private static List<Shader> filters;
 	
-	private static Shader forwardAmbientShader;
-	private static Shader forwardParticleAmbientShader;
+	private static Shader geometryPassShader;
+	private static Shader geometryPassParticleShader;
+	private static Shader geometryPassSkyboxShader;
 	private static Shader ambientShader;
 	private static Shader bloomCombineShader;
 	private static Shader bloomSwitchShader;
-	private static Shader forwardParticleShader;
 	private static Shader shadowMappingShader;
 	private static Shader particleShadowMappingShader;
 	private static Shader nullFilter;
 	private static Shader gausBlurFilter;
 	private static Shader fxaaFilter;
 	private static Shader shader2D;
-	private static Shader skyboxShader;
 	
 	private static Camera particleCamera;
 	private static Shader particleShader;
@@ -203,19 +202,18 @@ public class RenderingEngine{
 		setTexture("bloomTexture1", new Texture(Window.getWidth()/2, Window.getHeight()/2, (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		setTexture("bloomTexture2", new Texture(Window.getWidth()/2, Window.getHeight()/2, (ByteBuffer)null, GL11.GL_TEXTURE_2D, GL11.GL_LINEAR, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true, GL30.GL_COLOR_ATTACHMENT0));
 		
-		forwardAmbientShader = new Shader("geometryPass");
-		forwardParticleAmbientShader = new Shader("geometryPassParticle");
+		geometryPassShader = new Shader("geometryPass");
+		geometryPassParticleShader = new Shader("geometryPassParticle");
+		geometryPassSkyboxShader = new Shader("geometryPassSkybox");
 		ambientShader = new Shader("ambient");
 		bloomCombineShader = new Shader("bloomCombine");
 		bloomSwitchShader = new Shader("bloomSwitch");
-		forwardParticleShader = new Shader("forwardParticleForward");
 		shadowMappingShader =  new Shader("shadowMapping");
 		particleShadowMappingShader = new Shader("particleShadowMapping");
 		nullFilter = new Shader("filterNull");
 		gausBlurFilter = new Shader("filterGausBlur");
 		fxaaFilter = new Shader("filterFxaa");
 		shader2D = new Shader("shader2D");
-		skyboxShader = new Shader("geometryPassSkybox");
 		
 		filters = new ArrayList<Shader>();
 		
@@ -308,11 +306,11 @@ public class RenderingEngine{
 		
 		if(NeonEngine.areParticlesEnabled()){
 			particleCamera = mainCamera;
-			particleShader = forwardParticleAmbientShader;
+			particleShader = geometryPassParticleShader;
 			particleFlipFaces = false;
 		}
 		
-		object.renderAll(forwardAmbientShader, mainCamera);
+		object.renderAll(geometryPassShader, mainCamera);
 		
 		if(NeonEngine.areParticlesEnabled()){
 			batchRenderer.render(particleShader, mainCamera);
@@ -500,7 +498,7 @@ public class RenderingEngine{
 		if(skybox != null){
 			GL11.glDepthMask(false);
 			
-			skybox.render(skyboxShader, mainCamera);
+			skybox.render(geometryPassSkyboxShader, mainCamera);
 			
 			GL11.glDepthMask(true);
 		}
@@ -667,9 +665,9 @@ public class RenderingEngine{
 		return font;
 	}
 	
-	public static Shader getForwardAmbient(){
-		return forwardAmbientShader;
-	}
+//	public static Shader getForwardAmbient(){
+//		return geometryPassShader;
+//	}
 	
 	public static void setMainCamera(Camera mainCamera){
 		RenderingEngine.mainCamera = mainCamera;
