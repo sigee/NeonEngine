@@ -188,12 +188,12 @@ public class RenderingEngine{
 		camera2D = new Camera(0, Window.getWidth(), 0, Window.getHeight(), -1, 1);
 		new Entity().addComponent(camera2D);
 		
-		final ByteBuffer[] data = new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null};
-		final int[] filter = new int[]{GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST};
-		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGB32F, GL30.GL_RGB32F, GL11.GL_RGBA};
-		final int[] format = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA};
-		final int[] type = new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE, GL11.GL_FLOAT, GL11.GL_FLOAT, GL11.GL_UNSIGNED_BYTE};
-		final int[] attachment = new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3, GL30.GL_COLOR_ATTACHMENT4};
+		final ByteBuffer[] data = new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null};
+		final int[] filter = new int[]{GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST};
+		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGBA32F, GL30.GL_RGBA32F};
+		final int[] format = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA};
+		final int[] type = new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE, GL11.GL_FLOAT, GL11.GL_FLOAT};
+		final int[] attachment = new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3};
 		
 		setTexture("renderTexture", new Texture(Window.getWidth(), Window.getHeight(), data, GL11.GL_TEXTURE_2D, filter, internalFormat, format, type, true, attachment));
 		
@@ -694,12 +694,12 @@ public class RenderingEngine{
 		mainCamera.update();
 		camera2D.update();
 		
-		final ByteBuffer[] data = new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null};
-		final int[] filter = new int[]{GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST};
-		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGB32F, GL30.GL_RGB32F, GL11.GL_RGBA};
-		final int[] format = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA};
-		final int[] type = new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE, GL11.GL_FLOAT, GL11.GL_FLOAT, GL11.GL_UNSIGNED_BYTE};
-		final int[] attachment = new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3, GL30.GL_COLOR_ATTACHMENT4};
+		final ByteBuffer[] data = new ByteBuffer[]{(ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null, (ByteBuffer)null};
+		final int[] filter = new int[]{GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST, GL11.GL_NEAREST};
+		final int[] internalFormat = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL30.GL_RGBA32F, GL30.GL_RGBA32F};
+		final int[] format = new int[]{GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA, GL11.GL_RGBA};
+		final int[] type = new int[]{GL11.GL_UNSIGNED_BYTE, GL11.GL_UNSIGNED_BYTE, GL11.GL_FLOAT, GL11.GL_FLOAT};
+		final int[] attachment = new int[]{GL30.GL_COLOR_ATTACHMENT0, GL30.GL_COLOR_ATTACHMENT1, GL30.GL_COLOR_ATTACHMENT2, GL30.GL_COLOR_ATTACHMENT3};
 		
 		setTexture("renderTexture", new Texture(Window.getWidth(), Window.getHeight(), data, GL11.GL_TEXTURE_2D, filter, internalFormat, format, type, true, attachment));
 		

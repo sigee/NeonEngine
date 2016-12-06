@@ -5,7 +5,6 @@ uniform mat4 R0_lightMatrix;
 uniform sampler2D R0_filterTexture;
 uniform sampler2D R2_filterTexture;
 uniform sampler2D R3_filterTexture;
-uniform sampler2D R4_filterTexture;
 
 uniform sampler2D R_shadowMap;
 uniform float R_shadowVarianceMin;
@@ -28,14 +27,15 @@ float CalcShadowAmount(sampler2D shadowMap, vec4 initialShadowMapCoords){
 }
 
 void main(){
+	vec4 normal = texture(R2_filterTexture, texCoord0);
 	vec4 pos = texture(R3_filterTexture, texCoord0);
 	
 	//vec4 diffuse = texture(R0_filterTexture, texCoord0);
-	//vec4 lighting = CalcLightingEffect(texture(R2_filterTexture, texCoord0).rgb, pos.xyz, texture(specMap, texCoord0).x) * CalcShadowAmount(R_shadowMap, shadowMapCoords0);
+	//vec4 lighting = CalcLightingEffect(normal.xyz, pos.xyz, texture(specMap, texCoord0).x) * CalcShadowAmount(R_shadowMap, shadowMapCoords0);
 	
-	float shadow = CalcShadowAmount(R_shadowMap, (R0_lightMatrix * pos));
+	float shadow = CalcShadowAmount(R_shadowMap, (R0_lightMatrix * vec4(pos.xyz, 1.0)));
 	
-	outputFS = texture(R0_filterTexture, texCoord0) * CalcLightingEffect(texture(R2_filterTexture, texCoord0).rgb, pos.xyz, texture(R4_filterTexture, texCoord0).rg) * vec4(shadow, shadow, shadow, shadow);
+	outputFS = texture(R0_filterTexture, texCoord0) * CalcLightingEffect(normal.xyz, pos.xyz, vec2(normal.a, pos.a)) * vec4(shadow, shadow, shadow, shadow);
 	
 	//float brightness = dot(lighting.rgb, vec3(0.25, 0.25, 0.25));
 	
