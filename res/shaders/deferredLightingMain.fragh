@@ -35,13 +35,15 @@ void main(){
 	
 	float shadow = CalcShadowAmount(R_shadowMap, (R0_lightMatrix * vec4(pos.xyz, 1.0)));
 	
-	outputFS = texture(R0_filterTexture, texCoord0) * CalcLightingEffect(normal.xyz, pos.xyz, vec2(normal.a, pos.a)) * vec4(shadow, shadow, shadow, shadow);
-	
-	//float brightness = dot(lighting.rgb, vec3(0.25, 0.25, 0.25));
-	
-	//if(brightness > 1.0){		
-		//outputBloom = (diffuse * lighting)*vec4(0.5, 0.5, 0.5, 1.0);
-	//}else{		
-		//outputBloom = vec4(0.0, 0.0, 0.0, 0.0);
+	//if(normal.xyz != vec3(0.0, 0.0, 0.0)){
+		outputFS = texture(R0_filterTexture, texCoord0) * CalcLightingEffect(normal.xyz, pos.xyz, vec2(normal.a, pos.a)) * vec4(shadow, shadow, shadow, shadow);
+		
+		//float brightness = dot(lighting.rgb, vec3(0.25, 0.25, 0.25));
+		
+		//if(brightness > 1.0){		
+			//outputBloom = (diffuse * lighting)*vec4(0.5, 0.5, 0.5, 1.0);
+		//}else{		
+			//outputBloom = vec4(0.0, 0.0, 0.0, 0.0);
+		//}
 	//}
 }
