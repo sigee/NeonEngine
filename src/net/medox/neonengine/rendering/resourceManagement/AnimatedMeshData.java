@@ -95,7 +95,17 @@ public class AnimatedMeshData extends ReferenceCounter{
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, DataUtil.createFlippedBuffer(vertexData4), GL15.GL_STATIC_DRAW);
 		
 		
-		//TODO add JOINT_IDS_VB
+		
+		
+		GL20.glEnableVertexAttribArray(3);
+		GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 0, 0);
+		
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexArrayBuffers.get(JOINT_IDS_VB));
+		final Integer[] vertexData5 = new Integer[model.getTangents().size()];//TODO add this
+		model.getTangents().toArray(vertexData5);//TODO add this
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, DataUtil.createFlippedBuffer(vertexData5), GL15.GL_STATIC_DRAW);
+		
+		
 		
 		
 		GL20.glEnableVertexAttribArray(4);

@@ -42,9 +42,9 @@ public class AnimatedMesh{
 		return rootJoint;
 	}
 	
-//	public void doAnimation(){//TODO add this
-//		
-//	}
+	public void doAnimation(){//TODO add this
+		
+	}
 	
 	public void update(){
 		
